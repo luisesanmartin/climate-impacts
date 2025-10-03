@@ -4,4 +4,5 @@
 *.dta
 *.rds
 *.zip
+*.log
 data_raw/*

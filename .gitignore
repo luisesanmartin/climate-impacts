@@ -1,3 +1,7 @@
 **/.Rhistory
 **/__pycache__/**
 **/.ipynb_checkpoints/**
+*.dta
+*.rds
+*.zip
+data_raw/*

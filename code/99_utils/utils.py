@@ -1,6 +1,8 @@
 import cdsapi
 import objects
 import requests
+import numpy as np
+import csv
 
 def download_save(url, path):
 
@@ -51,3 +53,61 @@ def era5_data():
 
     client = cdsapi.Client()
     client.retrieve(dataset, request).download()
+
+def extract_by_closest_points_in_grid(coordinate, n, ds):
+
+    lon, lat = coordinate
+    
+    # Compute distance to the target point for each grid point
+    dist = np.sqrt((ds.latitude - lat)**2 + (ds.longitude - lon)**2)
+
+    # Find indices of the n closest points
+    closest_idx = np.unravel_index(np.argsort(dist.values, axis=None)[:n], dist.shape)
+
+    # Select the closest points
+    closest = ds.isel(latitude=closest_idx[0], longitude=closest_idx[1])
+
+    return closest
+
+def days_extreme_weather(
+    centroids, 
+    n_closest_points, 
+    ds, 
+    block = 1,
+    year_start = objects.START,
+    year_end = objects.END,
+    folder = f'{objects.DATA_INTERMEDIATE}/extreme-weather-days'
+    ):
+
+    results = []
+
+    for year in range(year_start, year_end+1):
+
+        for district, coordinate in centroids.items():
+
+            sub_ds = extract_by_closest_points_in_grid(coordinate, n_closest_points, ds)
+            temp = sub_ds[objects.TEMP_ATTRIBUTE].sel(time=ds['time'].dt.year == year) - 270
+
+            mean = temp.mean().item()
+            sd   = temp.std().item()
+
+            upper = mean + (3 * sd)
+            lower = mean - (3 * sd)
+
+            # Days with extreme weather
+            above = int((temp > upper).sum().item())
+            below = int((temp < lower).sum().item())
+
+            results.append([year, district, above + below])
+
+    filename = f'{folder}/extreme-weather{block}.csv'
+
+    with open(filename, 'w', newline='') as f:
+
+        writer = csv.writer(f)
+        writer.writerow(objects.headers)
+        writer.writerows(results)
+
+    print(f'Finished geoprocessing of block {block}')
+
+    return True

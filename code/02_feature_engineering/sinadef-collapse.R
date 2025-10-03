@@ -19,4 +19,4 @@ df2 <- df %>%
   summarize(deaths = sum(death)) %>%
   ungroup()
 
-write.csv(df2, file = here('data_processed', 'peru_deaths.csv'))
+write.csv(df2, file = here('data_processed', 'analysis', 'district-year-deaths.csv'))

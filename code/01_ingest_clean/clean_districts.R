@@ -16,4 +16,6 @@ df2 <- df%>%
          dist = adm3_es) %>%
   mutate(ubigeo = substr(ubigeo, 3, 8))
 
-st_write(df2, here('data_processed', 'peru_districts.geojson'))
+st_write(df2, 
+         here('data_processed', 'intermediate', 'peru_districts.geojson'),
+         append = FALSE)

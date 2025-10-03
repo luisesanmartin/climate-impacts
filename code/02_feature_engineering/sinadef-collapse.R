@@ -10,13 +10,13 @@ df2 <- df %>%
            cod_ubigeo_domicilio != 'SIN REGISTRO' &
            distrito_domicilio != 'SIN REGISTRO' &
            anio %in% 2022:2024) %>%
-  select(year = anio,
+  select(anio,
          ubigeo = cod_ubigeo_domicilio) %>%
   mutate(death = 1,
          ubigeo = substr(ubigeo, 7, 14),
          ubigeo = gsub("-", "", ubigeo)) %>%
-  group_by(year, ubigeo) %>%
+  group_by(anio, ubigeo) %>%
   summarize(deaths = sum(death)) %>%
   ungroup()
 
-write.csv(df2, file = here('data_processed', 'analysis', 'district-year-deaths.csv'))
+saveRDS(df2, file = here('data_processed', 'analysis', 'district-year-deaths.rds'))

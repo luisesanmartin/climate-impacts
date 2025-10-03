@@ -53,9 +53,13 @@ process_year <- function(i) {
         TRUE ~ NA_character_
       ),
       
-      # Derived populations
+      # Urban/rural populations
       poblacion_rural  = if_else(area == "Rural", 1, 0, missing = 0),
-      poblacion_urbana = if_else(area == "Urbano", 1, 0, missing = 0)
+      poblacion_urbana = if_else(area == "Urbano", 1, 0, missing = 0),
+      
+      # Removing haven_lbll types
+      conglome = haven::as_factor(conglome),
+      estrato  = haven::as_factor(estrato)
     ) %>%
     
     # Keep only final variables

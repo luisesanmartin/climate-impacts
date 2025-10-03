@@ -35,8 +35,12 @@ results <- enaho_svy %>%
     FUN = svymean,
     keep.var = FALSE  # we won't calculate SE here, can add if needed
   ) %>%
-  as.data.frame() %>%
-  rename_with(~str_remove(., "statistic."), .cols = starts_with("statistic."))
+  as.data.frame()
+
+results <- results %>%
+  rename_with(~str_remove(., "statistic."), .cols = starts_with("statistic.")) %>%
+  mutate(anio   = as.numeric(substr(anio_ubigeo, 1, 4)),
+         ubigeo = substr(anio_ubigeo, 5, 10))
 
 # Save results in wide CSV format
-write.csv(results, here("data_processed", "analysis", "district-year-controls.csv"), row.names = FALSE)
+saveRDS(results, here("data_processed", "analysis", "district-year-controls.rds"))

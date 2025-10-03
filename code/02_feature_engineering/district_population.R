@@ -3,8 +3,8 @@ library(readxl)
 library(dplyr)
 library(tidyr)
 
-path <- here('data_raw', 'reporte_estadist.xlsx')
-df <- read_excel(path) %>% 
+file <- here('data_raw', 'reporte_estadist.xlsx')
+df <- read_excel(file) %>% 
   janitor::clean_names() %>%
   filter(!is.na(ubigeo)) %>%
   select(ubigeo,
@@ -16,6 +16,7 @@ df <- read_excel(path) %>%
     names_to = "anio",
     values_to = "poblacion"
   ) %>%
-  mutate(anio = gsub("poblacion", "", anio))
+  mutate(anio = gsub("poblacion", "", anio),
+         anio = as.integer(anio))
 
 saveRDS(df, file = here('data_processed', 'analysis', 'district-year-population.rds'))

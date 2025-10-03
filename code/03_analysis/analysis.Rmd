@@ -1,0 +1,63 @@
+---
+title: "Exploratory analysis of extreme weather on deaths in Peru 2022-2024"
+author: "Luis Eduardo San Martin"
+date: "2025-10-03"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(here)
+library(stargazer)
+file <- here('data_processed', 'data_final.rds')
+df <- readRDS(file)
+```
+
+```{r, echo=FALSE, message=FALSE, results='asis'}
+y <- 'deaths_per_1000'
+x <- 'days_extreme'
+controls <- c('poblacion', 'piso_tierra', 'agua_red_publica', 'desague_red_publica', 'electricidad',
+              'cocina_lena', 'poblacion_rural', 'region_sierra', 'region_selva', 'enfermedad',
+              'seguro_de_salud', 'edad_65_mas', 'pobreza_total', 'pobreza_extrema', 'anio')
+
+x_all <- paste(c(x, controls), collapse = ' + ')
+reg_formula1 <- as.formula(paste(y, x    , sep = ' ~ '))
+reg_formula2 <- as.formula(paste(y, x_all, sep = ' ~ '))
+reg1 <- lm(reg_formula1, data = df)
+reg2 <- lm(reg_formula2, data = df)
+
+stargazer(
+  reg1,
+  reg2,
+  title = 'Effect of Extreme weather days on Deaths per 1000 population',
+  keep = c(x, 'poblacion', 'piso_tierra', 'agua_red_publica', 'desague_red_publica',
+              'cocina_lena', 'poblacion_rural', 'enfermedad',
+              'seguro_de_salud', 'edad_65_mas', 'pobreza_total', 'pobreza_extrema'),
+  deb.var.caption = '',
+  keep.stat = c('n', 'adj.rsq'),
+  header = FALSE,
+  add.lines = list(c('Controls', 'No', 'Yes'))
+)
+
+stargazer(
+  reg1,
+  reg2,
+  title = 'Effect of Extreme weather days on Deaths per 1000 population',
+  keep = c(x, 'piso_tierra', 'desague_red_publica',
+              'cocina_lena', 'enfermedad', 'edad_65_mas'),
+  covariate.labels = c('Extreme temperature events',
+                       'share of HH-dirt floor',
+                       'share of HH-sewage',
+                       'share of HH-cooks with wood',
+                       'share of pop-sickness',
+                       'share of pop-age 65+'),
+  dep.var.labels = c('Deaths per 1000'),
+  dep.var.caption = '',
+  keep.stat = c('n', 'adj.rsq'),
+  header = FALSE,
+  add.lines = list(c('Controls', 'No', 'Yes'))
+)
+```
